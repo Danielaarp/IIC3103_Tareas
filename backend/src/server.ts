@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 import { supabase } from "./database/supabase.js";
+import authRouter from "./routes/auth.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -10,6 +11,7 @@ const port = Number(process.env.PORT ?? 3000);
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
+app.use("/api/auth", authRouter);
 
 app.get("/api/health", (_request, response) => {
   response.status(200).json({
