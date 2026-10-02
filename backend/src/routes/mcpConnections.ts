@@ -101,7 +101,10 @@ router.get("/:connectionId/tools", async (request, response) => {
       new Date(connection.token_expires_at) <= new Date()
     ) {
       response.status(401).json({
-        error: "El token del MCP venció. Vuelve a conectar Andes Air.",
+        error:
+  `El token de ${connection.name} venció. ` +
+  "Usa Reconectar en Configuración.",
+        
       });
       return;
     }

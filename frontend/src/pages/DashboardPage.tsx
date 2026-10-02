@@ -78,12 +78,9 @@ function DashboardPage() {
     void loadDashboard();
   }, [navigate]);
 
-  const handleConnectPre = () => {
-    window.location.href = "/api/mcp/pre/connect";
-  };
-
-  const handleConnectDcr = () => {
-  window.location.href = "/api/mcp/dcr/connect";
+const handleConnect = (method: string) => {
+  window.location.href =
+    `/api/mcp/${method.toLowerCase()}/connect`;
 };
 
   const handleListTools = async (connectionId: string) => {
@@ -187,22 +184,29 @@ function DashboardPage() {
             </p>
           </div>
 
-      <div className="connectionActions">
-  {!connections.some(
-    (connection) => connection.auth_method === "PRE",
-  ) && (
-    <button type="button" onClick={handleConnectPre}>
-      Conectar Andes Air
-    </button>
-  )}
+<div className="connectionActions">
+  {[
+    { name: "Andes Air", method: "PRE" },
+    { name: "StayWell", method: "DCR" },
+    { name: "Cielo Sur", method: "CIMD" },
+  ].map((service) => {
+    const connected = connections.some(
+      (connection) =>
+        connection.auth_method === service.method,
+    );
 
-  {!connections.some(
-    (connection) => connection.auth_method === "DCR",
-  ) && (
-    <button type="button" onClick={handleConnectDcr}>
-      Conectar StayWell
-    </button>
-  )}
+    return (
+      <button
+        key={service.method}
+        type="button"
+        className={connected ? "secondary" : undefined}
+        onClick={() => handleConnect(service.method)}
+      >
+        {connected ? "Reconectar" : "Conectar"}{" "}
+        {service.name}
+      </button>
+    );
+  })}
 </div>
         </div>
       </section>
@@ -213,29 +217,38 @@ function DashboardPage() {
         </section>
       )}
 
-      {connections.map((connection) => (
-        <section className="card" key={connection.id}>
-          <div className="sectionHeader">
-            <div>
-              <h2>{connection.name}</h2>
-              <p>
-                Autenticación:{" "}
-                <strong>{connection.auth_method}</strong>
-              </p>
-            </div>
+{connections.map((connection) => (
+  <section className="card" key={connection.id}>
+    <div className="sectionHeader">
+      <div>
+        <h2>{connection.name}</h2>
 
-            <button
-              type="button"
-              disabled={loadingToolsId === connection.id}
-              onClick={() =>
-                void handleListTools(connection.id)
-              }
-            >
-              {loadingToolsId === connection.id
-                ? "Cargando..."
-                : "Listar tools"}
-            </button>
-          </div>
+        <p>
+          Autenticación:{" "}
+          <strong>{connection.auth_method}</strong>
+        </p>
+
+        <p>
+          Estado:{" "}
+          {connection.token_expires_at
+            ? new Date(connection.token_expires_at).getTime() <=
+              Date.now()
+              ? "Token vencido: reconecta el servicio"
+              : "Token vigente"
+            : "Sin fecha de vencimiento informada"}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        disabled={loadingToolsId === connection.id}
+        onClick={() => void handleListTools(connection.id)}
+      >
+        {loadingToolsId === connection.id
+          ? "Cargando..."
+          : "Listar tools"}
+      </button>
+    </div>
 
           {tools[connection.id] && (
             <div className="toolsList">
