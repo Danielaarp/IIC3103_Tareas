@@ -1,0 +1,15 @@
+{
+  "client_id": "https://t1-frontend-c87a.onrender.com/oauth-client-metadata.json",
+  "client_name": "IntegraTrip - Cielo Sur",
+  "redirect_uris": [
+    "http://localhost:5173/api/mcp/cimd/callback",
+    "https://t1-frontend-c87a.onrender.com/api/mcp/cimd/callback"
+  ],
+  "grant_types": [
+    "authorization_code"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "token_endpoint_auth_method": "none"
+}

@@ -1,52 +1,134 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ToolExecutor, {type McpTool,} from "../components/ToolExecutor";
 
-interface User {
+interface User {id: string;email: string;student_id: string | null;}
+
+interface McpConnection {
   id: string;
-  email: string;
-  student_id: string | null;
+  name: string;
+  server_url: string;
+  auth_method: string;
+  token_expires_at: string | null;
+  created_at: string;
 }
+
+
 
 function DashboardPage() {
   const navigate = useNavigate();
+
   const [user, setUser] = useState<User | null>(null);
+  const [connections, setConnections] = useState<McpConnection[]>(
+    [],
+  );
+  const [tools, setTools] = useState<
+    Record<string, McpTool[]>
+  >({});
   const [loading, setLoading] = useState(true);
+  const [loadingToolsId, setLoadingToolsId] = useState<
+    string | null
+  >(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const loadUser = async () => {
+    const loadDashboard = async () => {
       try {
-        const response = await fetch("/api/auth/me", {
-          credentials: "include",
-        });
+        const [authResponse, connectionsResponse] =
+          await Promise.all([
+            fetch("/api/auth/me", {
+              credentials: "include",
+            }),
+            fetch("/api/mcp/connections", {
+              credentials: "include",
+            }),
+          ]);
 
-        if (response.status === 401) {
+        if (
+          authResponse.status === 401 ||
+          connectionsResponse.status === 401
+        ) {
           navigate("/", { replace: true });
           return;
         }
 
-        if (!response.ok) {
-          throw new Error("No fue posible recuperar la sesión");
+        if (!authResponse.ok || !connectionsResponse.ok) {
+          throw new Error("No fue posible cargar el dashboard");
         }
 
-        const data = (await response.json()) as {
+        const authData = (await authResponse.json()) as {
           authenticated: boolean;
           user: User;
         };
 
-        setUser(data.user);
+        const connectionsData =
+          (await connectionsResponse.json()) as {
+            connections: McpConnection[];
+          };
+
+        setUser(authData.user);
+        setConnections(connectionsData.connections);
       } catch {
-        setError("No fue posible cargar tu sesión.");
+        setError("No fue posible cargar la información.");
       } finally {
         setLoading(false);
       }
     };
 
-    void loadUser();
+    void loadDashboard();
   }, [navigate]);
 
-    const handleLogout = async () => {
-    const response = await fetch("/api/auth/logout", {method: "POST",credentials: "include",});
+  const handleConnectPre = () => {
+    window.location.href = "/api/mcp/pre/connect";
+  };
+
+  const handleConnectDcr = () => {
+  window.location.href = "/api/mcp/dcr/connect";
+};
+
+  const handleListTools = async (connectionId: string) => {
+    try {
+      setError("");
+      setLoadingToolsId(connectionId);
+
+      const response = await fetch(
+        `/api/mcp/connections/${connectionId}/tools`,
+        {
+          credentials: "include",
+        },
+      );
+
+      const data = (await response.json()) as {
+        tools?: McpTool[];
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ?? "No fue posible listar las tools",
+        );
+      }
+
+      setTools((currentTools) => ({
+        ...currentTools,
+        [connectionId]: data.tools ?? [],
+      }));
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "No fue posible listar las tools.",
+      );
+    } finally {
+      setLoadingToolsId(null);
+    }
+  };
+
+  const handleLogout = async () => {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
 
     if (response.ok) {
       navigate("/", { replace: true });
@@ -60,16 +142,6 @@ function DashboardPage() {
     return (
       <main className="page centered">
         <p>Cargando sesión...</p>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="page centered">
-        <section className="card">
-          <p className="error">{error}</p>
-        </section>
       </main>
     );
   }
@@ -91,18 +163,97 @@ function DashboardPage() {
         </button>
       </header>
 
+      {error && (
+        <section className="card">
+          <p className="error">{error}</p>
+        </section>
+      )}
+
       <section className="card">
         <h2>Usuario</h2>
         <p>{user?.email}</p>
+
         {user?.student_id && (
           <p>Número de alumno: {user.student_id}</p>
         )}
       </section>
 
       <section className="card">
-        <h2>Servidores MCP</h2>
-        <p>Todavía no tienes servidores MCP conectados.</p>
+        <div className="sectionHeader">
+          <div>
+            <h2>Servidores MCP</h2>
+            <p>
+              Conecta y consulta las herramientas disponibles.
+            </p>
+          </div>
+
+      <div className="connectionActions">
+  {!connections.some(
+    (connection) => connection.auth_method === "PRE",
+  ) && (
+    <button type="button" onClick={handleConnectPre}>
+      Conectar Andes Air
+    </button>
+  )}
+
+  {!connections.some(
+    (connection) => connection.auth_method === "DCR",
+  ) && (
+    <button type="button" onClick={handleConnectDcr}>
+      Conectar StayWell
+    </button>
+  )}
+</div>
+        </div>
       </section>
+
+      {connections.length === 0 && (
+        <section className="card">
+          <p>Todavía no tienes servidores MCP conectados.</p>
+        </section>
+      )}
+
+      {connections.map((connection) => (
+        <section className="card" key={connection.id}>
+          <div className="sectionHeader">
+            <div>
+              <h2>{connection.name}</h2>
+              <p>
+                Autenticación:{" "}
+                <strong>{connection.auth_method}</strong>
+              </p>
+            </div>
+
+            <button
+              type="button"
+              disabled={loadingToolsId === connection.id}
+              onClick={() =>
+                void handleListTools(connection.id)
+              }
+            >
+              {loadingToolsId === connection.id
+                ? "Cargando..."
+                : "Listar tools"}
+            </button>
+          </div>
+
+          {tools[connection.id] && (
+            <div className="toolsList">
+              {tools[connection.id].length === 0 ? (
+                <p>Este servidor no informó tools.</p>
+              ) : (
+               tools[connection.id].map((tool) => (
+  <ToolExecutor
+    key={tool.name}
+    connectionId={connection.id}
+    tool={tool}
+  />
+))
+              )}
+            </div>
+          )}
+        </section>
+      ))}
     </main>
   );
 }

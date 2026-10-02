@@ -1,71 +1,66 @@
 import "dotenv/config";
-import { createHash, randomBytes } from "node:crypto";
-import { Router, type CookieOptions } from "express";
+import { randomBytes } from "node:crypto";
+import { Router } from "express";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { supabase } from "../database/supabase.js";
 import { encryptText } from "../security/encryption.js";
-
-
+import { requireEnvironmentVariable } from "../utils/env.js";
+import { hashValue } from "../security/hashing.js";
+import { generatePkce } from "../oauth/pkce.js";
+import {
+  sessionCookieClearOptions,
+  sessionCookieOptions,
+  temporaryCookieClearOptions,
+  temporaryCookieOptions,
+} from "../config/cookies.js";
 
 const router = Router();
 
-function requireEnvironmentVariable(name: string): string {
-  const value = process.env[name];
+const loginCookieOptions = temporaryCookieOptions();
+const loginCookieClearOptions =
+  temporaryCookieClearOptions();
 
-  if (!value) {
-    throw new Error(`Falta la variable de entorno ${name}`);
-  }
-  return value;}
-
-
-//variables de entorno necesarias para la autenticación OAuth
-const authorizationUrl = requireEnvironmentVariable("AUTH_AUTHORIZATION_URL",);
+const authorizationUrl = requireEnvironmentVariable(
+  "AUTH_AUTHORIZATION_URL",
+);
 const tokenUrl = requireEnvironmentVariable("AUTH_TOKEN_URL");
 const issuerUrl = requireEnvironmentVariable("AUTH_ISSUER_URL");
 const jwksUrl = requireEnvironmentVariable("AUTH_JWKS_URL");
 const clientId = requireEnvironmentVariable("PRE_CLIENT_ID");
-const clientSecret = requireEnvironmentVariable("PRE_CLIENT_SECRET");
+const clientSecret = requireEnvironmentVariable(
+  "PRE_CLIENT_SECRET",
+);
 const publicAppUrl = requireEnvironmentVariable("PUBLIC_APP_URL");
-const sessionCookieName = process.env.SESSION_COOKIE_NAME ?? "integratrip_session";
+
+const sessionCookieName =
+  process.env.SESSION_COOKIE_NAME ?? "integratrip_session";
+
 const appOrigin = new URL(publicAppUrl).origin;
 const redirectUri = `${appOrigin}/api/auth/callback`;
 const jwks = createRemoteJWKSet(new URL(jwksUrl));
-const isProduction = process.env.NODE_ENV === "production";
 
-const temporaryCookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: "lax",
-  path: "/api/auth/callback",
-  maxAge: 10 * 60 * 1000,
-};
 
-const sessionCookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: "lax",
-  path: "/",
-  maxAge: 24 * 60 * 60 * 1000,
-};
 
-const sessionCookieClearOptions: CookieOptions = {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: "lax",
-  path: "/",
-};
-
-function hashValue(value: string): string {
-  return createHash("sha256").update(value).digest("hex");
-}
 // rutas para el flujo de autenticación OAuth
 router.get("/login", (_request, response) => {
-  const state = randomBytes(32).toString("base64url");
-  const codeVerifier = randomBytes(32).toString("base64url");
-  const codeChallenge = createHash("sha256").update(codeVerifier).digest("base64url");
+  const {
+    state,
+    codeVerifier,
+    codeChallenge,
+  } = generatePkce();
 
-  response.cookie("oauth_login_state", state, temporaryCookieOptions);
-  response.cookie("oauth_login_verifier",codeVerifier,temporaryCookieOptions,);
+  response.cookie(
+    "oauth_login_state",
+    state,
+    loginCookieOptions,
+  );
+
+  response.cookie(
+    "oauth_login_verifier",
+    codeVerifier,
+    loginCookieOptions,
+  );
+
   const authorize = new URL(authorizationUrl);
 
   authorize.searchParams.set("response_type", "code");
@@ -100,6 +95,13 @@ router.get("/callback", async (request, response) => {
     const codeVerifier = request.cookies.oauth_login_verifier as
       | string
       | undefined;
+          console.log({
+  hasCode: Boolean(code),
+  hasReturnedState: Boolean(returnedState),
+  hasExpectedState: Boolean(expectedState),
+  hasCodeVerifier: Boolean(codeVerifier),
+  stateMatches: returnedState === expectedState,
+});
 
     if (
       !code ||
@@ -129,6 +131,7 @@ router.get("/callback", async (request, response) => {
         resource: appOrigin,
       }),
     });
+
 
     if (!tokenResponse.ok) {
       const errorBody = await tokenResponse.text();
@@ -232,18 +235,11 @@ router.get("/callback", async (request, response) => {
       });
       return;
     }
+    response.clearCookie("oauth_login_state",loginCookieClearOptions,);
+    response.clearCookie("oauth_login_verifier",loginCookieClearOptions,);
 
-    response.clearCookie("oauth_login_state", temporaryCookieOptions);
-    response.clearCookie(
-      "oauth_login_verifier",
-      temporaryCookieOptions,
-    );
-
-    response.cookie(
-      sessionCookieName,
-      sessionToken,
-      sessionCookieOptions,
-    );
+    response.cookie(sessionCookieName,sessionToken,sessionCookieOptions,);
+    
 
     response.redirect(`${appOrigin}/dashboard`);
   } catch (error) {

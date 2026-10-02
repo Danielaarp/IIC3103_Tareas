@@ -4,6 +4,10 @@ import express from "express";
 import helmet from "helmet";
 import { supabase } from "./database/supabase.js";
 import authRouter from "./routes/auth.js";
+import mcpPreRouter from "./routes/mcpPre.js";
+import mcpConnectionsRouter from "./routes/mcpConnections.js";
+import mcpDcrRouter from "./routes/mcpDcr.js";
+import mcpCimdRouter from "./routes/mcpCimd.js";
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -12,6 +16,11 @@ app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
+app.use("/api/mcp/pre", mcpPreRouter);
+app.use("/api/mcp/connections", mcpConnectionsRouter);
+app.use("/api/mcp/dcr", mcpDcrRouter);
+app.use("/api/mcp/cimd", mcpCimdRouter);
+
 
 app.get("/api/health", (_request, response) => {
   response.status(200).json({

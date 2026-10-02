@@ -104,3 +104,147 @@ button.secondary {
     flex-direction: column;
   }
 }
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sectionHeader h2 {
+  margin-top: 0;
+}
+
+.toolsList {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.toolCard {
+  padding: 1rem;
+  border: 1px solid #dce3ec;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+}
+
+.toolCard h3 {
+  margin-top: 0;
+}
+
+.toolCard pre {
+  max-height: 22rem;
+  padding: 1rem;
+  overflow: auto;
+  border-radius: 0.5rem;
+  color: #e2e8f0;
+  background: #0f172a;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 40rem) {
+  .sectionHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toolsList {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.toolCard {
+  padding: 1.25rem;
+  border: 1px solid #dce3ec;
+  border-radius: 0.8rem;
+  background: #f8fafc;
+}
+
+.toolForm {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.toolForm label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.toolForm input,
+.toolForm select,
+.toolForm textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: white;
+  color: #172033;
+  font: inherit;
+}
+
+.toolForm textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.toolForm small {
+  color: #64748b;
+  font-weight: 400;
+}
+
+.checkboxField {
+  display: flex !important;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.checkboxField input {
+  width: auto;
+}
+
+.toolResult {
+  max-width: 100%;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.toolResult pre,
+.toolCard details pre {
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+@media (max-width: 40rem) {
+  .sectionHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
