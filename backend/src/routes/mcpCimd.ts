@@ -18,7 +18,7 @@ const redirectUri = `${appOrigin}/api/mcp/cimd/callback`;
 
 const authorizationUrl ="https://tarea1-auth-z2fqxmm2ja-uc.a.run.app/realms/cimd/authorize";
 
-const mcpResource = requireEnvironmentVariable("MCP_RESOURCE");
+const mcpResource ="https://tarea1-mcp-cimd-z2fqxmm2ja-uc.a.run.app/mcp";
 const tokenUrl =  "https://tarea1-auth-z2fqxmm2ja-uc.a.run.app/realms/cimd/token";
 
 
