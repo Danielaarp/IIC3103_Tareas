@@ -149,6 +149,10 @@ router.get("/callback", async (request, response) => {
     const tokenExpiration = new Date(
       Date.now() + (tokenData.expires_in ?? 3600) * 1000,
     ).toISOString();
+    console.log("Guardando conexión MCP: pre", {
+  userId: session.userId,
+  resource: mcpResource,
+});
 
     const { error: connectionError } = await supabase
       .from("mcp_connections")
