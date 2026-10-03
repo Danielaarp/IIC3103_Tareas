@@ -2,6 +2,7 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
+
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 app.use(helmet());

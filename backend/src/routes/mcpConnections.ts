@@ -1,4 +1,4 @@
-import { response, Router } from "express";
+import {   Router } from "express";
 import { getAuthenticatedSession } from "../auth/session.js";
 import { supabase } from "../database/supabase.js";
 import { decryptText } from "../security/encryption.js";

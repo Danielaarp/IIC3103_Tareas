@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ToolExecutor, {type McpTool,} from "../components/ToolExecutor";
+import ToolExecutor, {
+  type McpTool,
+} from "../components/chat/ToolExecutor";
 
-interface User {id: string;email: string;student_id: string | null;}
+interface User {
+  id: string;
+  email: string;
+  student_id: string | null;
+}
 
 interface McpConnection {
   id: string;
@@ -13,23 +19,16 @@ interface McpConnection {
   created_at: string;
 }
 
-
-
 function DashboardPage() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<User | null>(null);
-  const [connections, setConnections] = useState<McpConnection[]>(
-    [],
-  );
-  const [tools, setTools] = useState<
-    Record<string, McpTool[]>
-  >({});
+  const [connections, setConnections] = useState<McpConnection[]>([]);
+  const [tools, setTools] = useState<Record<string, McpTool[]>>({});
   const [loading, setLoading] = useState(true);
-  const [loadingToolsId, setLoadingToolsId] = useState<
-    string | null
-  >(null);
+  const [loadingToolsId, setLoadingToolsId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [now] = useState(() => Date.now());
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -78,10 +77,11 @@ function DashboardPage() {
     void loadDashboard();
   }, [navigate]);
 
-const handleConnect = (method: string) => {
-  window.location.href =
-    `/api/mcp/${method.toLowerCase()}/connect`;
-};
+  const handleConnect = (method: string) => {
+    window.location.assign(
+      `/api/mcp/${method.toLowerCase()}/connect`,
+    );
+  };
 
   const handleListTools = async (connectionId: string) => {
     try {
@@ -121,6 +121,10 @@ const handleConnect = (method: string) => {
     }
   };
 
+  const handleChats = () => {
+    navigate("/chat");
+  };
+
   const handleLogout = async () => {
     const response = await fetch("/api/auth/logout", {
       method: "POST",
@@ -158,6 +162,14 @@ const handleConnect = (method: string) => {
         >
           Cerrar sesión
         </button>
+
+        <button
+          type="button"
+          className="secondary"
+          onClick={handleChats}
+        >
+          Ir a mis conversaciones
+        </button>
       </header>
 
       {error && (
@@ -184,84 +196,102 @@ const handleConnect = (method: string) => {
             </p>
           </div>
 
-<div className="connectionActions">
-  {[
-    { name: "Andes Air", method: "PRE" },
-    { name: "StayWell", method: "DCR" },
-    { name: "Cielo Sur", method: "CIMD" },
-  ].map((service) => {
-    const connected = connections.some(
-      (connection) =>
-        connection.auth_method === service.method,
-    );
+          <div className="connectionActions">
+            {[
+              { name: "Andes Air", method: "PRE" },
+              { name: "StayWell", method: "DCR" },
+              { name: "Cielo Sur", method: "CIMD" },
+            ].map((service) => {
+              const connected = connections.some(
+                (connection) =>
+                  connection.auth_method === service.method,
+              );
 
-    return (
-      <button
-        key={service.method}
-        type="button"
-        className={connected ? "secondary" : undefined}
-        onClick={() => handleConnect(service.method)}
-      >
-        {connected ? "Reconectar" : "Conectar"}{" "}
-        {service.name}
-      </button>
-    );
-  })}
-</div>
+              return (
+                <button
+                  key={service.method}
+                  type="button"
+                  className={
+                    connected ? "secondary" : undefined
+                  }
+                  onClick={() =>
+                    handleConnect(service.method)
+                  }
+                >
+                  {connected ? "Reconectar" : "Conectar"}{" "}
+                  {service.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {connections.length === 0 && (
         <section className="card">
-          <p>Todavía no tienes servidores MCP conectados.</p>
+          <p>
+            Todavía no tienes servidores MCP conectados.
+          </p>
         </section>
       )}
 
-{connections.map((connection) => (
-  <section className="card" key={connection.id}>
-    <div className="sectionHeader">
-      <div>
-        <h2>{connection.name}</h2>
+      {connections.map((connection) => (
+        <section
+          className="card"
+          key={connection.id}
+        >
+          <div className="sectionHeader">
+            <div>
+              <h2>{connection.name}</h2>
 
-        <p>
-          Autenticación:{" "}
-          <strong>{connection.auth_method}</strong>
-        </p>
+              <p>
+                Autenticación:{" "}
+                <strong>
+                  {connection.auth_method}
+                </strong>
+              </p>
 
-        <p>
-          Estado:{" "}
-          {connection.token_expires_at
-            ? new Date(connection.token_expires_at).getTime() <=
-              Date.now()
-              ? "Token vencido: reconecta el servicio"
-              : "Token vigente"
-            : "Sin fecha de vencimiento informada"}
-        </p>
-      </div>
+              <p>
+                Estado:{" "}
+                {connection.token_expires_at
+                  ? new Date(
+                      connection.token_expires_at,
+                    ).getTime() <= now
+                    ? "Token vencido: reconecta el servicio"
+                    : "Token vigente"
+                  : "Sin fecha de vencimiento informada"}
+              </p>
+            </div>
 
-      <button
-        type="button"
-        disabled={loadingToolsId === connection.id}
-        onClick={() => void handleListTools(connection.id)}
-      >
-        {loadingToolsId === connection.id
-          ? "Cargando..."
-          : "Listar tools"}
-      </button>
-    </div>
+            <button
+              type="button"
+              disabled={
+                loadingToolsId === connection.id
+              }
+              onClick={() =>
+                void handleListTools(connection.id)
+              }
+            >
+              {loadingToolsId === connection.id
+                ? "Cargando..."
+                : "Listar tools"}
+            </button>
+          </div>
 
           {tools[connection.id] && (
             <div className="toolsList">
               {tools[connection.id].length === 0 ? (
-                <p>Este servidor no informó tools.</p>
+                <p>
+                  Este servidor no informó tools.
+                </p>
               ) : (
-               tools[connection.id].map((tool) => (
-  <ToolExecutor
-    key={tool.name}
-    connectionId={connection.id}
-    tool={tool}
-  />
-))
+                tools[connection.id].map((tool) => (
+                  <ToolExecutor
+                    key={tool.name}
+                    connectionId={connection.id}
+                    tool={tool}
+                  />
+                ))
               )}
             </div>
           )}

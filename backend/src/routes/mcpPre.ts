@@ -24,7 +24,6 @@ const redirectUri = `${appOrigin}/api/mcp/pre/callback`;
 
 
 
-const callbackPath = "/api/mcp/pre/callback";
 
 const preCookieOptions = temporaryCookieOptions();
 const preCookieClearOptions =

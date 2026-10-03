@@ -248,3 +248,305 @@ button:disabled {
     flex-direction: column;
   }
 }
+
+/* Paleta rosa de IntegraTrip */
+:root {
+  --accent: #be185d;
+  --accent-bg: #fce7f3;
+  --accent-border: #f9a8d4;
+  --border: #f3cddd;
+
+  color: #442536;
+  background: #fff5f9;
+}
+
+body {
+  background:
+    radial-gradient(
+      ellipse at top left,
+      #fbcfe8 0,
+      transparent 45%
+    ),
+    radial-gradient(
+      ellipse at bottom right,
+      #fce7f3 0,
+      transparent 45%
+    ),
+    #fff5f9;
+}
+
+/* Botones */
+button {
+  background: linear-gradient(135deg, #be185d, #a21caf);
+  color: white;
+  border-radius: 0.8rem;
+  box-shadow: 0 4px 12px rgb(190 24 93 / 18%);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #9d174d, #86198f);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgb(190 24 93 / 25%);
+}
+
+button.secondary {
+  background: #fce7f3;
+  color: #9d174d;
+  border: 1px solid #f9a8d4;
+  box-shadow: none;
+}
+
+button.secondary:hover:not(:disabled) {
+  background: #fbcfe8;
+}
+
+button:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Tarjetas */
+.card {
+  background: #fff;
+  border: 1px solid #f3cddd;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 28px rgb(131 24 67 / 8%);
+}
+
+h1,
+h2,
+h3 {
+  color: #831843;
+}
+
+.eyebrow {
+  color: #be185d;
+}
+
+a {
+  color: #a21caf;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: #831843;
+}
+
+/* Portada */
+.hero {
+  border-top: 5px solid #db2777;
+  background: linear-gradient(160deg, #fff, #fff1f7);
+}
+
+.hero h1 {
+  color: #9d174d;
+}
+
+/* Herramientas y formularios */
+.toolCard {
+  background: #fff8fb;
+  border-color: #f3cddd;
+}
+
+.toolForm input,
+.toolForm select,
+.toolForm textarea {
+  border-color: #e8b8cd;
+  color: #442536;
+  background: #fff;
+}
+
+.toolForm small {
+  color: #765368;
+}
+
+input[type="checkbox"] {
+  accent-color: #be185d;
+}
+
+/* Foco visible al navegar con teclado */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #be185d;
+  outline-offset: 3px;
+}
+
+/* Resultados: fondo oscuro para mantener legibilidad */
+.toolResult,
+.toolCard pre,
+.toolCard details pre {
+  background: #321827;
+  color: #fff1f7;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.connectionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+
+  button:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+.chat-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background-color: #f5f5f5;
+}
+
+.chatbot {
+  width: 100%;
+  max-width: 800px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  line-height: 1.4;
+}
+
+.user-message {
+  align-self: flex-end;
+  background-color: #222;
+  color: white;
+}
+
+.model-message {
+  align-self: flex-start;
+  background-color: #eeeeee;
+  color: #222;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid #dddddd;
+}
+
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #cccccc;
+  font: inherit;
+}
+
+.chat-input button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-input button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.chat-page {
+  display: flex;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.chat-sidebar {
+  width: 260px;
+  height: 100vh;
+  padding: 16px;
+  border-right: 1px solid #e5e5e5;
+  background-color: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.new-chat-button {
+  width: 100%;
+  padding: 12px 14px;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 10px;
+
+  background-color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.new-chat-button:hover {
+  background-color: #f5f5f5;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  overflow-y: auto;
+}
+
+.chat-item {
+  width: 100%;
+  padding: 10px 12px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  text-align: left;
+  font-size: 14px;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-item:hover {
+  background-color: #f2f2f2;
+}
+
+.chat-item.active {
+  background-color: #e9e9e9;
+  font-weight: 500;
+}

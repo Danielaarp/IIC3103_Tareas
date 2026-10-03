@@ -8,7 +8,8 @@ import mcpPreRouter from "./routes/mcpPre.js";
 import mcpConnectionsRouter from "./routes/mcpConnections.js";
 import mcpDcrRouter from "./routes/mcpDcr.js";
 import mcpCimdRouter from "./routes/mcpCimd.js";
-
+import agentRouter from "./routes/agent.js";
+import chatsRouter from "./routes/chats.js";
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 
@@ -20,7 +21,8 @@ app.use("/api/mcp/pre", mcpPreRouter);
 app.use("/api/mcp/connections", mcpConnectionsRouter);
 app.use("/api/mcp/dcr", mcpDcrRouter);
 app.use("/api/mcp/cimd", mcpCimdRouter);
-
+app.use("/api/agent", agentRouter);
+app.use("/api/chats", chatsRouter);
 
 app.get("/api/health", (_request, response) => {
   response.status(200).json({
