@@ -20,3 +20,9 @@ npm-debug.log*
 
 # macOS
 .DS_Store
+
+# RAG
+rag/magazines/*.pdf
+rag/.venv/
+
+rag/.env
