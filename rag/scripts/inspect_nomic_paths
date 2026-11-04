@@ -1,0 +1,48 @@
+from pathlib import Path
+import os
+
+from dotenv import load_dotenv
+from nomic import AtlasDataset, login
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+NOMIC_API_KEY = os.getenv("NOMIC_API_KEY")
+
+if not NOMIC_API_KEY:
+    raise RuntimeError("Falta NOMIC_API_KEY en rag/.env")
+
+login(NOMIC_API_KEY)
+
+dataset = AtlasDataset(
+    "danielaarp/integratrip-magazines"
+)
+
+print("Dataset:")
+print(dataset.identifier)
+
+print("\nMaps encontrados:")
+print(dataset.maps)
+
+for i, atlas_map in enumerate(dataset.maps):
+    print("\n" + "=" * 60)
+    print(f"MAP {i}")
+    print("=" * 60)
+
+    print("Objeto:")
+    print(atlas_map)
+
+    print("\nAtributos:")
+    print(dir(atlas_map))
+
+    for attr in [
+        "id",
+        "projection_id",
+        "map_id",
+        "name",
+        "status",
+    ]:
+        try:
+            print(f"{attr}: {getattr(atlas_map, attr)}")
+        except Exception:
+            pass
